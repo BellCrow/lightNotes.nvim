@@ -1,0 +1,33 @@
+M.setup({user_config})                                                 *M.setup*
+     Call this once with your settings table, if you need settings, that are not default
+
+    Parameters: ~
+        {user_config}  (Config)
+
+
+M.toggle_global_note()                                    *M.toggle_global_note*
+     Toogles the global note for on and off. If there is already a floating
+     window, the old note will be closed and a new floting window
+     will be created with the global note.
+
+
+M.toogle_branch_scoped_note()                      *M.toogle_branch_scoped_note*
+     Toogles a note, that is scoped to the branch of the current repository.
+     This will only work if the path of the file of the currently active
+     buffer, is inside of a git repository. Will fail with
+     a warning if the file is not part of a repository.
+
+
+M.toogle_repo_scoped_note()                          *M.toogle_repo_scoped_note*
+     Toogles a note, that is scoped to the repository of the active file.
+     This will only work if the path of the file of the currently active
+     buffer, is inside of a git repository. Will fail with
+     a warning if the file is not part of a repository.
+
+
+M.close_note()                                                    *M.close_note*
+     Closed a possibly open floating window, that is showing a note.
+     Nothing happens if no window is open.
+
+
+vim:tw=78:ts=8:noet:ft=help:norl:

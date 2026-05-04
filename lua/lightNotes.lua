@@ -1,28 +1,22 @@
-local config = require("config")
-require("util")
-local float = require("float")
-local logger = require("logger")
-require("scopes")
-require("note")
+local config = require("lightNotes.config")
+require("lightNotes.util")
+local float = require("lightNotes.float")
+local logger = require("lightNotes.logger")
+require("lightNotes.scopes")
+require("lightNotes.note")
 
-local constants = require("constants")
+local constants = require("lightNotes.constants")
 
 local M = {}
 
 --- Call this once with your settings table, if you need settings, that are not default
 ---@param user_config Config
 M.setup = function(user_config)
-    if user_config == nil then
-        -- this is a special case im handling, to not annoy the user
-        -- so the warning is unfounded in this case
-        ---@diagnostic disable-next-line: missing-fields
-        user_config = {}
-    end
+    config.Merge(user_config or {})
 
-    config.Merge(user_config)
-    if not Exists(config.Instance.notes_folder) then
-        logger.Info("No existing config directory found. Creating new one on path: " .. config.Instance.notes_folder)
-        if vim.fn.mkdir(config.Instance.notes_folder, "p") == 0 then
+    if not Exists(config.Instance.notes_directory) then
+        logger.Warn("No existing config directory found. Creating new one on path: " .. config.Instance.notes_directory)
+        if vim.fn.mkdir(config.Instance.notes_directory, "p") == 0 then
             logger.Error("Could not create new notes directory. Are write permissions missing ?")
             return
         end
@@ -31,6 +25,9 @@ M.setup = function(user_config)
     vim.api.nvim_create_augroup(constants.PluginName, { clear = true })
 end
 
+--- Toogles the global note for on and off. If there is already a floating
+--- window, the old note will be closed and a new floting window
+--- will be created with the global note.
 M.toggle_global_note = function()
     local global_note_identifier = Calculate_global_scope_identifier()
 
@@ -46,9 +43,9 @@ M.toggle_global_note = function()
         end
     end
 
-    local global_notes_file_path = vim.fs.joinpath(config.Instance.notes_folder, global_note_identifier)
+    local global_notes_file_path = vim.fs.joinpath(config.Instance.notes_directory, global_note_identifier)
     if not Exists(global_notes_file_path) then
-        logger.Info(
+        logger.Warn(
             "Could not find global note on path "
                 .. global_notes_file_path
                 .. ". Creating a new empty global note file."
@@ -60,6 +57,10 @@ M.toggle_global_note = function()
     float.Show_note_in_float(global_note, "Global note")
 end
 
+--- Toogles a note, that is scoped to the branch of the current repository.
+--- This will only work if the path of the file of the currently active
+--- buffer, is inside of a git repository. Will fail with
+--- a warning if the file is not part of a repository.
 M.toogle_branch_scoped_note = function()
     ---@type Note
     local shown_note = nil
@@ -86,12 +87,16 @@ M.toogle_branch_scoped_note = function()
         return
     end
 
-    local note_file_path = vim.fs.joinpath(config.Instance.notes_folder, path_scoped_identifier .. ".txt")
+    local note_file_path = vim.fs.joinpath(config.Instance.notes_directory, path_scoped_identifier .. ".txt")
     local note = Open_note_from_path(note_file_path)
     note.identifier = path_scoped_identifier
     float.Show_note_in_float(note, "Branch note: " .. branch_name)
 end
 
+--- Toogles a note, that is scoped to the repository of the active file.
+--- This will only work if the path of the file of the currently active
+--- buffer, is inside of a git repository. Will fail with
+--- a warning if the file is not part of a repository.
 M.toogle_repo_scoped_note = function()
     ---@type Note
     local shown_note = nil
@@ -117,12 +122,14 @@ M.toogle_repo_scoped_note = function()
         return
     end
 
-    local scoped_note_path = vim.fs.joinpath(config.Instance.notes_folder, path_scoped_identifier .. ".txt")
+    local scoped_note_path = vim.fs.joinpath(config.Instance.notes_directory, path_scoped_identifier .. ".txt")
     local scoped_note = Open_note_from_path(scoped_note_path)
     scoped_note.identifier = path_scoped_identifier
     float.Show_note_in_float(scoped_note, "Repository note")
 end
 
+--- Closed a possibly open floating window, that is showing a note.
+--- Nothing happens if no window is open.
 M.close_note = function()
     if not float.Is_open() then
         return

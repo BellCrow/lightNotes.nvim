@@ -1,4 +1,4 @@
-require("note")
+require("lightNotes.note")
 
 local M = {}
 

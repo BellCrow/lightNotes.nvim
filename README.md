@@ -10,3 +10,4 @@ Currently a work in progress.
 - if you write a function to convert a file path to a hash value, take into consideration, that you might 
   have buffers, that might not have a easy to handle path. like the nvim help for instance. 
   Or you have a buffer open, that resolves to a path, that you did not expect. 
+

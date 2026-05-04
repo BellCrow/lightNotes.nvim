@@ -9,3 +9,11 @@
 
 - add sample integration for oil buffers, so the file path is correctly
   sourced from the current oil buffer
+
+- add logger, that also logs to a file with more verbosity
+
+- add list with known issues:
+	- error when trying to open a scoped note from the message window
+		- i guess the file path is not retrievable
+	- asked if you want to save the buffer if you use ":qa" while you have
+	  unsaved changes in an open float window

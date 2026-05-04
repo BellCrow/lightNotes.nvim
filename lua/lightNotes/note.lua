@@ -1,5 +1,5 @@
-local constants = require("constants")
-local logger = require("logger")
+local constants = require("lightNotes.constants")
+local logger = require("lightNotes.logger")
 
 ---@class (exact) Note Encapsulates a single note, with its contained buffer
 ---@field buffer integer The buffer id that is backing this note

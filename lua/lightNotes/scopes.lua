@@ -1,8 +1,8 @@
-require("util")
-require("logger")
+require("lightNotes.util")
+require("lightNotes.logger")
 
-local config = require("config")
-local sha2 = require("sha2")
+local config = require("lightNotes.config")
+local sha2 = require("lightNotes.sha2")
 
 function Calc_hash(input)
     local ret = sha2.sha256(input)
