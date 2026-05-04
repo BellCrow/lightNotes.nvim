@@ -1,8 +1,9 @@
-local projectInfo = require("info")
----TODO: make the severity value part of the config
----@type integer Sets the severity of logs, to see. Higher numbers means less severe messages are logged
-local loglevel = 4
-local module_name = projectInfo.ProjectName
+local config = require("config")
+
+local module_name = require("constants").PluginName
+
+local M = {}
+
 local function current_time()
     return os.date("!%Y-%m-%dT%TZ")
 end
@@ -11,8 +12,8 @@ local function output(message)
     vim.print(message)
 end
 
-function Debug(message)
-    if loglevel < 4 then
+M.Debug = function(message)
+    if config.Instance.log_severity < 4 then
         return
     end
     assert(type(message) == "string")
@@ -20,8 +21,8 @@ function Debug(message)
     output(message)
 end
 
-function Info(message)
-    if loglevel < 3 then
+M.Info = function(message)
+    if config.Instance.log_severity < 3 then
         return
     end
     assert(type(message) == "string")
@@ -29,8 +30,8 @@ function Info(message)
     output(message)
 end
 
-function Warn(message)
-    if loglevel < 2 then
+M.Warn = function(message)
+    if config.Instance.log_severity < 2 then
         return
     end
     assert(type(message) == "string")
@@ -38,11 +39,13 @@ function Warn(message)
     output(message)
 end
 
-function Error(message)
-    if loglevel < 1 then
+M.Error = function(message)
+    if config.Instance.log_severity < 1 then
         return
     end
     assert(type(message) == "string")
     message = current_time() .. " " .. module_name .. "|(ERROR):" .. message
     error(message)
 end
+
+return M

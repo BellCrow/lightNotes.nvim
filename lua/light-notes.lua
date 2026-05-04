@@ -1,98 +1,135 @@
+local config = require("config")
 require("util")
-require("logger")
-require("config")
-local projectInfo = require("info")
+local float = require("float")
+local logger = require("logger")
+require("scopes")
+require("note")
 
-Debug("Loading light notes")
+local constants = require("constants")
 
 local M = {}
 
 --- Call this once with your settings table, if you need settings, that are not default
----@param config Config
-M.setup = function(config)
-    if config == nil then
-        Error(
-            "Please supply a config option in the setup call."
-                .. "If you want to use the default settigs."
-                .. " You can just call setup like this 'require(\"light-notes\").setup({})'"
+---@param user_config Config
+M.setup = function(user_config)
+    if user_config == nil then
+        -- this is a special case im handling, to not annoy the user
+        -- so the warning is unfounded in this case
+        ---@diagnostic disable-next-line: missing-fields
+        user_config = {}
+    end
+
+    config.Merge(user_config)
+    if not Exists(config.Instance.notes_folder) then
+        logger.Info("No existing config directory found. Creating new one on path: " .. config.Instance.notes_folder)
+        if vim.fn.mkdir(config.Instance.notes_folder, "p") == 0 then
+            logger.Error("Could not create new notes directory. Are write permissions missing ?")
+            return
+        end
+    end
+
+    vim.api.nvim_create_augroup(constants.PluginName, { clear = true })
+end
+
+M.toggle_global_note = function()
+    local global_note_identifier = Calculate_global_scope_identifier()
+
+    if float.Is_open() then
+        local shown_note = float.Get_current_note()
+        M.close_note()
+        if shown_note.identifier == global_note_identifier then
+            -- this happens when the user has a float open with the global note and
+            -- they request to show the global note again
+            -- I interpret this as the user wanting to close the float
+            -- Like a toggle operation
+            return
+        end
+    end
+
+    local global_notes_file_path = vim.fs.joinpath(config.Instance.notes_folder, global_note_identifier)
+    if not Exists(global_notes_file_path) then
+        logger.Info(
+            "Could not find global note on path "
+                .. global_notes_file_path
+                .. ". Creating a new empty global note file."
         )
+    end
+
+    local global_note = Open_note_from_path(global_notes_file_path)
+    global_note.identifier = global_note_identifier
+    float.Show_note_in_float(global_note, "Global note")
+end
+
+M.toogle_branch_scoped_note = function()
+    ---@type Note
+    local shown_note = nil
+    if float.Is_open() then
+        shown_note = float.Get_current_note()
+        M.close_note()
+    end
+
+    local current_file_path = Get_path_to_current_file()
+    assert(current_file_path ~= nil)
+
+    local path_scoped_identifier, branch_name = Calculate_branch_scope_identifier(current_file_path)
+    if path_scoped_identifier == nil then
+        logger.Warn("Cannot create branch scoped note if not in a repository.")
         return
     end
-    Setup_config_instance(config)
-end
 
-local function write_buffer(buf)
-    local buf_info = vim.fn.getbufinfo(buf)[1]
-    if buf_info.changed == 0 then
+    -- shown note is nil, if there was no float open
+    if shown_note ~= nil and path_scoped_identifier == shown_note.identifier then
+        -- this happens when the user has a float open and
+        -- they request to show the same note as is already shown
+        -- I interpret this as the user wanting to close the float
+        -- Like a toggle operation
         return
     end
-    vim.api.nvim_buf_call(buf, function()
-        vim.cmd("silent w")
-    end)
+
+    local note_file_path = vim.fs.joinpath(config.Instance.notes_folder, path_scoped_identifier .. ".txt")
+    local note = Open_note_from_path(note_file_path)
+    note.identifier = path_scoped_identifier
+    float.Show_note_in_float(note, "Branch note: " .. branch_name)
 end
 
-local opened_float = -1
-local augroup = vim.api.nvim_create_augroup(projectInfo.ProjectName, {})
-local function open_buffer_in_float(buf)
-    Debug("Window instance " .. tostring(opened_float))
-    if opened_float ~= -1 then
-        Debug("Closing floating window")
-        vim.api.nvim_win_close(opened_float, false)
+M.toogle_repo_scoped_note = function()
+    ---@type Note
+    local shown_note = nil
+    if float.Is_open() then
+        shown_note = float.Get_current_note()
+        M.close_note()
+    end
+    local current_file_path = Get_path_to_current_file()
+    assert(current_file_path ~= nil)
+
+    local path_scoped_identifier = Calculate_root_scope_identifier(current_file_path, ".git")
+    if path_scoped_identifier == nil then
+        logger.Warn("Could not determine root of project to create a note. Used '.git' as root marker")
         return
     end
-    local width = math.floor(vim.o.columns * 0.8)
-    local height = math.floor(vim.o.lines * 0.8)
 
-    local x = math.floor((vim.o.columns - width) / 2)
-    local y = math.floor((vim.o.lines - height) / 2)
-    local win_config = {
-        relative = "editor",
-        width = width,
-        height = height,
-        col = x,
-        row = y,
-        title = "Global Notes",
-        title_pos = "center",
-    }
-
-    opened_float = vim.api.nvim_open_win(buf, true, win_config)
-    vim.api.nvim_create_autocmd("WinClosed", {
-        pattern = tostring(opened_float),
-        once = true,
-        callback = function()
-            opened_float = -1
-        end,
-        group = augroup,
-    })
-    -- TODO: these autocommands are not properly cleaned up
-    -- i found multiple of them with fzf even though there
-    -- should only ever be one at a time.
-    vim.api.nvim_create_autocmd("BufLeave", {
-        buffer = buf,
-        callback = function()
-            Debug("Auto command for buffer saving called")
-            write_buffer(buf)
-        end,
-        group = augroup,
-    })
-end
-
----@type integer
-local global_notes_buffer = -1
-
-M.open_global_notes = function()
-    local global_notes_file_path = vim.fs.joinpath(ConfigInstance.notes_folder, ConfigInstance.global_notes_file_name)
-
-    Debug("Opening global note in path " .. global_notes_file_path)
-    if global_notes_buffer == -1 then
-        global_notes_buffer = Open_file_into_buffer(global_notes_file_path)
-        Debug("Opening global notes from path " .. global_notes_file_path)
-    else
-        Debug("Reusing already existing global notes buffer with id " .. global_notes_buffer)
+    -- shown note is nil, if there was no float open
+    if shown_note ~= nil and path_scoped_identifier == shown_note.identifier then
+        -- this happens when the user has a float open and
+        -- they request to show the same note as is already shown
+        -- I interpret this as the user wanting to close the float
+        -- Like a toggle operation
+        return
     end
-    open_buffer_in_float(global_notes_buffer)
+
+    local scoped_note_path = vim.fs.joinpath(config.Instance.notes_folder, path_scoped_identifier .. ".txt")
+    local scoped_note = Open_note_from_path(scoped_note_path)
+    scoped_note.identifier = path_scoped_identifier
+    float.Show_note_in_float(scoped_note, "Repository note")
 end
 
-M.open_scoped_notes = function() end
+M.close_note = function()
+    if not float.Is_open() then
+        return
+    end
+    local shown_note = float.Get_current_note()
+    float.Close()
+    Free_note(shown_note)
+end
 
 return M

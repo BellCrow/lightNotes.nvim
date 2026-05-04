@@ -1,0 +1,11 @@
+- go through all files and add proper documentation for stuff that
+  looks weird
+
+- add documentation for all interfaces, that the user might have/want
+  to touch
+
+- add health check, so the user can see what the note dir and the 
+  total number of notes are
+
+- add sample integration for oil buffers, so the file path is correctly
+  sourced from the current oil buffer
