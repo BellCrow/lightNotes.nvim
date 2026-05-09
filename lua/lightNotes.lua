@@ -107,14 +107,14 @@ M.toogle_repo_scoped_note = function()
     local current_file_path = Get_path_to_current_file()
     assert(current_file_path ~= nil)
 
-    local path_scoped_identifier = Calculate_root_scope_identifier(current_file_path, ".git")
-    if path_scoped_identifier == nil then
+    local note_identifier = Calculate_root_scope_identifier(current_file_path, ".git")
+    if note_identifier == nil then
         logger.Warn("Could not determine root of project to create a note. Used '.git' as root marker")
         return
     end
 
     -- shown note is nil, if there was no float open
-    if shown_note ~= nil and path_scoped_identifier == shown_note.identifier then
+    if shown_note ~= nil and note_identifier == shown_note.identifier then
         -- this happens when the user has a float open and
         -- they request to show the same note as is already shown
         -- I interpret this as the user wanting to close the float
@@ -122,13 +122,14 @@ M.toogle_repo_scoped_note = function()
         return
     end
 
-    local scoped_note_path = vim.fs.joinpath(config.Instance.notes_directory, path_scoped_identifier .. ".txt")
-    local scoped_note = Open_note_from_path(scoped_note_path)
-    scoped_note.identifier = path_scoped_identifier
-    float.Show_note_in_float(scoped_note, "Repository note")
+    local note_path = vim.fs.joinpath(config.Instance.notes_directory, note_identifier .. ".txt")
+    local note = Open_note_from_path(note_path)
+    note.identifier = note_identifier
+    float.Show_note_in_float(note, "Repository note")
 end
 
---- Closed a possibly open floating window, that is showing a note.
+--- Closes an open floating window, that is
+--- showing a note if there is any.
 --- Nothing happens if no window is open.
 M.close_note = function()
     if not float.Is_open() then
@@ -137,6 +138,49 @@ M.close_note = function()
     local shown_note = float.Get_current_note()
     float.Close()
     Free_note(shown_note)
+end
+
+---@alias scope_func fun(buffer_path:string):string,string
+---@param scope_func scope_func This function should take in a path
+--- to the file of the current buffer and return an identifier, that
+--- can be used as the name of a file. It can optionally also return
+--- any name, that will be shown as the title of the floating window
+--- used to show the note (Can be nil)
+M.toogle_custom_scoped_note = function(scope_func)
+    ---@type Note
+    local shown_note = nil
+    if float.Is_open() then
+        shown_note = float.Get_current_note()
+        M.close_note()
+    end
+    local current_file_path = Get_path_to_current_file()
+    assert(current_file_path ~= nil)
+
+    local note_identifier, float_window_title = scope_func(current_file_path)
+    float_window_title = float_window_title or ""
+
+    -- shown note is nil, if there was no float open
+    if shown_note ~= nil and note_identifier == shown_note.identifier then
+        -- this happens when the user has a float open and
+        -- they request to show the same note as is already shown
+        -- I interpret this as the user wanting to close the float
+        -- Like a toggle operation
+        return
+    end
+
+    local note_path = vim.fs.joinpath(config.Instance.notes_directory, note_identifier .. ".txt")
+    local note = Open_note_from_path(note_path)
+    note.identifier = note_identifier
+    float.Show_note_in_float(note, float_window_title)
+end
+
+--- Calculates an identifier from the given string, that only
+--- contains characters, that can be used as characters in a directory path.
+---@param input string The string to convert to an identifier
+---@return string
+M.calcualate_identifier = function(input)
+    require("lightNotes.scopes")
+    return Calc_identifier(input)
 end
 
 return M

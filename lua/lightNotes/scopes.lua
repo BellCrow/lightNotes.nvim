@@ -4,7 +4,7 @@ require("lightNotes.logger")
 local config = require("lightNotes.config")
 local sha2 = require("lightNotes.sha2")
 
-function Calc_hash(input)
+function Calc_identifier(input)
     local ret = sha2.sha256(input)
     assert(
         type(ret) == "string",
@@ -25,7 +25,7 @@ function Calculate_root_scope_identifier(file_path, root_marker)
     if found_root == nil then
         return nil
     end
-    return Calc_hash(found_root)
+    return Calc_identifier(found_root)
 end
 
 --- Taken from: https://www.reddit.com/r/neovim/comments/uz3ofs/heres_a_function_to_grab_the_name_of_the_current/
@@ -54,7 +54,7 @@ function Calculate_branch_scope_identifier(path)
         return nil
     end
 
-    local hash = Calc_hash(Calc_hash(branch) .. Calc_hash(git_root))
+    local hash = Calc_identifier(Calc_identifier(branch) .. Calc_identifier(git_root))
     return hash, branch
 end
 

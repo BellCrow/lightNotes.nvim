@@ -1,3 +1,175 @@
+*lightNotes* Minimalistic plugin for note taking in neovim
+
+*lightNotes-overview*
+light notes is a plugin for neovim, that allows you take notes in a very
+simplistic nature. It allows you to take notes in one of two ways 
+"global" and "scoped".
+
+*lighNotes-identifier*
+Every note in lightNotes, is stored as a regular .txt file in the 
+notes directory. However that means these files need to get a name. 
+This name is not directly specified by the user, but is calculated
+based on the context from which lightNotes was invoked. 
+
+The predefinded scope(|lightNotes-scopes-predefined|) 
+|lightNotes-scope-repository| for instance retrieves the the repository and the
+branch which the current buffers file belong to and calculate an
+identifier based on the retrieved branch name. 
+
+By default the identifiers are just sha256 hashes, which only creates
+characters valid for filenames and are also unique.
+
+So in the given example if lightNotes retrieves the name "main_branch" the
+resulting note would get the name
+"b3484f002f1ec16c9672449a8fa7a2d0d470fa8022fc0a7c341abb62d5e906de.txt"
+
+However that also means it is very hard to do file searches in the notes
+directory. This is a tradeoff, that I was willing to accept for myself
+as It was not apparent to me how to generate sensibly named but still
+auto generated notes for each possible scope. 
+
+If you roughly know what you are looking for you might still have success
+using full text search in the notes directory with something like ripgrep.
+
+If that is not acceptable to you then you should either check out some
+alternative notes plugin or you could try to use the |lightNotes-scope-custom|
+function and make your custom functions return human readable note names. An
+example on how to do that is shown below.
+
+
+*lightNotes-global-note*
+There is a single so called global note. This note is
+unique for your nvim config(so the value you have set via the configuration).
+It will be same no matter what files/directories you are editing with nvim.
+
+I usually use this to takes notes about things I still need to do. For
+instance, when my boss comes into my office and lets me know, there is some
+stuff i need to check later. I just write it in my global note. 
+
+As the global note is always on a fixed path, you could also create an alias
+in your terminal to open nvim with this global file to make it more accessible
+
+*lightNotes-scoped-note* 
+Scoped notes are "attached" to a certain scope that exists during an nvim
+session. The scopes are always calculated based on the currently edited buffer
+(which should be a file). If the current buffer is not a file with a backing
+path, creating/editing a scoped note might not work.
+
+*lightNotes-scopes-predefined*
+By default lightNotes comes with 2 different scopes predefined. However you
+can also define your own scopes by supplying a lua function to the plugin.
+
+*lightNotes-scope-repository*
+This scope will take the currently active file buffer and does a root search
+for a ".git" folder. Every file, that resolves to the same ".git" folder will
+open the same note for you to edit.
+
+*lightNotes-scope-branch*
+This scope will take the currently active buffer and will simply query git for
+the currently active branch. A note scoped to this specific branch will be
+created or opened. That means, that all file paths in this repository, that
+are part of the same branch will share a note. 
+
+*lightNotes-scope-custom*
+If the preexisting scope definitions are not fitting for your usecase you can
+also define your own scopes. 
+
+The api offers a function |toogle_custom_scoped_note| which expects a function
+as an argument. This function is given the full path to the active buffers
+file. The function should return a note identifier and optionally a title,
+that is shown on the floating window. 
+
+! Keep in mind, that the returned note identifier MUST be a string, that could
+be used as a file name !
+
+That way you can calcualte your own identifiers based on the file path as you
+see fit. 
+
+You can use the |calculate_identifier| function offered to convert any given
+string into a valid identifier.
+
+You only have to make sure, to calculate the same identifier for file paths,
+that you want to have the same note.
+
+Examples: >lua
+
+    local function file_scoped_note(file_path)
+	-- this will take the current file path
+	-- and convert it into an identifier
+	-- effectively creating a note for this single file
+	-- based on its full path
+	local identifier = lightNotes.calcualate_hash(file_path)
+	return identifier, identifier
+    end
+    ------------------------------------------------------------------
+    local function branch_file_scoped(file_path)
+
+	local is_file = vim.uv.fs_stat(file_path).type == "file"
+	if is_file then
+	    -- the "git branch" command only works
+	    -- if the -C parameter specifies a directory
+	    file_path = vim.fs.dirname(file_path)
+	end
+	local branch = vim.fn.system("git -C " .. path .. " branch --show-current 2> /dev/null | tr -d '\n'")
+	if branch == nil then
+	    vim.print("Not in a git repo")
+	    return nil, nil
+	end
+	-- this creates an identfier for the current file
+	-- ON the current branch. 
+	local identifier = lightNotes.calcualate_hash(branch .. ":" .. file_path)
+	return identifier, identifier
+    end
+    ------------------------------------------------------------------
+    local function file_scoped_note_humand_readable(file_path)
+	-- as per the documentation:
+	--     keep in mind, that creating identifiers this way means,
+	--     that ANY file that you are working with this file name will
+	--     result in opening the same note.
+	--     If you are unsure, why that is or what this means. 
+	--     Please read the section about identifiers in the help
+	local identifier = vim.fs.basename(file_path)
+	-- if you have a file path like 
+	-- ~/repos/SuperImportantRepository/src/fileImCurentlyWorkingOn.txt
+	-- the resulting identifier would be fileImCurentlyWorkingOn.txt
+	-- if you had another repository like this
+	-- ~/repos/someOtherRepository/src/someFolder/fileImCurentlyWorkingOn.txt
+	-- and you invoked lightNotes from there with this function
+	-- it would open the same note as in the firs repository in this
+	-- example
+	return identifier, identifier
+    end
+    ------------------------------------------------------------------
+
+    -- now you can use <leader>nc to create a file
+    -- scoped in any file that you are in. 
+    -- this note is unique for the given FULL path
+    -- of the file
+    vim.keymap.set("n", "<leader>nc", function()
+	lightNotes.custom_scope(file_scope_note)
+    end)
+<
+
+*lightNotes-scope-custom-guidelines*
+If you are to create custom scopes, keep the following in mind:
+
+The less likely a scope is to change, the more usefull the scope will be. For
+instance, having a repository scoped note makes sense, as you probably not
+move the repo around a lot once its cloned somwhere (at least I do not).
+Having a branch scoped note, is already a bit more brittle as you can only
+access the note if you are on the branch. A branch might also be delete at
+some point as it is merged, making the notes for this branch harder to access.
+
+Creating a file scoped note would only be usefull to take some scratch notes
+as the note would effectively be lost once you rename or move the file.
+
+If you have a clever idea on how to make this more robust, you can however
+create custom scopes, that take care of all these issues. Feel free to let me
+know what you come up with if you think it makes sense to add as a predefined
+scope.
+
+*lightNotes-api*
+
 M.setup({user_config})                                                 *M.setup*
      Call this once with your settings table, if you need settings, that are not default
 
@@ -26,8 +198,36 @@ M.toogle_repo_scoped_note()                          *M.toogle_repo_scoped_note*
 
 
 M.close_note()                                                    *M.close_note*
-     Closed a possibly open floating window, that is showing a note.
+     Closes an open floating window, that is
+     showing a note if there is any.
      Nothing happens if no window is open.
 
+
+scope_func                                                          *scope_func*
+
+    Type: ~
+        fun(buffer_path:string):string,string
+
+
+                                                   *M.toogle_custom_scoped_note*
+M.toogle_custom_scoped_note({scope_func})
+
+    Parameters: ~
+        {scope_func}  (scope_func)  This function should take in a path
+                                     to the file of the current buffer and return an identifier, that
+                                     can be used as the name of a file. It can optionally also return
+                                     any name, that will be shown as the title of the floating window
+                                     used to show the note (Can be nil)
+
+
+M.calcualate_identifier({input})                       *M.calcualate_identifier*
+     Calculates an identifier from the given string, that only
+     contains characters, that can be used as characters in a directory path.
+
+    Parameters: ~
+        {input}  (string)  The string to convert to an identifier
+
+    Returns: ~
+        (string)
 
 vim:tw=78:ts=8:noet:ft=help:norl:
