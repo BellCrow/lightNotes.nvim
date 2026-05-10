@@ -3,7 +3,7 @@ LightNotes is a plugin for neovim, that allows you take notes in a very
 simplistic nature by "attaching" a note to a file or a so called "scope".
 It allows you to take notes in one of two ways "global" and "scoped".
 
-<img width="1238" height="1389" alt="Image" src="https://github.com/user-attachments/assets/ec7a3069-ac95-4943-89fc-75ee1ee64aa1" />
+<img width="1238" height="800" alt="Image" src="https://github.com/user-attachments/assets/ec7a3069-ac95-4943-89fc-75ee1ee64aa1" />
 
 # AI-Disclaimer
 As the topic seems to be very polarizing, I would like disclose here, that no
