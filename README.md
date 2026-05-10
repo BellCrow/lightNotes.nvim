@@ -1,7 +1,6 @@
 <div align="center">
   <p align="center">
-    <br />
-      <img align="center" src="https://github.com/user-attachments/assets/9d83e5d9-b491-42f1-a0e4-b278391023ac">
+      <img align="center" height=100 widht=120 src="https://github.com/user-attachments/assets/9d83e5d9-b491-42f1-a0e4-b278391023ac">
   </p>
 </div>
 
@@ -16,7 +15,7 @@ It allows you to take notes in one of two ways "global" and "scoped".
 # AI-Disclaimer
 As the topic seems to be very polarizing, I would like disclose here, that no
 AI was involved in the creation of the code and documentation of  plugin. I
-have only used generative AI to create the Logo, you can see on the
+have only used generative AI to create the logo, you can see on the
 repositories github page.
 
 Any bugs, issues or weird behavior you might encounter have been produced 100 %
