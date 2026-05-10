@@ -66,6 +66,29 @@ The demo shown here was done using these keybinds
     end)
 ```
 
+# Scopes
+
+There are two different kinds of notes lightNotes supports. 
+
+## Global note
+There is a single so called global note. This note is
+unique for your nvim config(so the value you have set via the configuration).
+It will be same no matter what files/directories you are editing with nvim.
+
+## Scoped notes
+Scoped notes are "attached" to a certain scope that exists during an nvim
+session. The scopes are always calculated based on the currently edited buffer
+(which should be a file). 
+
+There are two predefined scopes you can use
+
+* repository scope
+* branch scope
+
+You can also create custom scopes if you want. 
+See the vim help doc for examples.
+
+
 # Integrations
 The plugin relies on the ability to retrieve a file path for the active 
 buffer. If you are just working on any "real" file that is not a problem,
