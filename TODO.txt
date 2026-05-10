@@ -7,9 +7,6 @@
 - add health check, so the user can see what the note dir and the 
   total number of notes are
 
-- add sample integration for oil buffers, so the file path is correctly
-  sourced from the current oil buffer
-
 - add logger, that also logs to a file with more verbosity
 
 - add list with known issues:

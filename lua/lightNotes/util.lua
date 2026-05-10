@@ -33,8 +33,8 @@ end
 
 function Get_path_to_current_file()
     -- getting the current active file
-    -- is a bit more involved then obvious.
-    -- for instance being in a float/scratch
+    -- is a bit more involved than obvious.
+    -- For instance: Being in a float/scratch
     -- terminal makes it more difficult,
     -- as the buffers contained in them might
     -- not have a file path attached

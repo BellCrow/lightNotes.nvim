@@ -1,15 +1,15 @@
 *lightNotes* Minimalistic plugin for note taking in neovim
 
 *lightNotes-overview*
-light notes is a plugin for neovim, that allows you take notes in a very
-simplistic nature. It allows you to take notes in one of two ways 
-"global" and "scoped".
+LightNotes is a plugin for neovim, that allows you take notes in a very
+simplistic nature by "attaching" a note to a file or a so called "scope". It
+allows you to take notes in one of two ways "global" and "scoped".
 
 *lighNotes-identifier*
-Every note in lightNotes, is stored as a regular .txt file in the 
-notes directory. However that means these files need to get a name. 
-This name is not directly specified by the user, but is calculated
-based on the context from which lightNotes was invoked. 
+Every note in lightNotes, is stored as a regular .txt file in a configurable
+notes directory. However that means these files need to get a name. This name
+is not directly specified by the user, but is calculated based on the context
+from which lightNotes was invoked. 
 
 The predefinded scope(|lightNotes-scopes-predefined|) 
 |lightNotes-scope-repository| for instance retrieves the the repository and the

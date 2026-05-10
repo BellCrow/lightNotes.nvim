@@ -178,7 +178,7 @@ end
 --- contains characters, that can be used as characters in a directory path.
 ---@param input string The string to convert to an identifier
 ---@return string
-M.calcualate_identifier = function(input)
+M.calculate_identifier = function(input)
     require("lightNotes.scopes")
     return Calc_identifier(input)
 end
