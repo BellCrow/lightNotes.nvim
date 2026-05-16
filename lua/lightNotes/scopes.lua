@@ -1,10 +1,9 @@
-require("lightNotes.util")
-require("lightNotes.logger")
-
 local config = require("lightNotes.config")
 local sha2 = require("lightNotes.sha2")
+local util = require("lightNotes.util")
 
-function Calc_identifier(input)
+local M = {}
+M.Calc_identifier = function(input)
     local ret = sha2.sha256(input)
     assert(
         type(ret) == "string",
@@ -20,12 +19,12 @@ end
 ---@param file_path string
 ---@param root_marker string
 ---@return string|nil
-function Calculate_root_scope_identifier(file_path, root_marker)
+M.Calculate_root_scope_identifier = function(file_path, root_marker)
     local found_root = vim.fs.root(file_path, root_marker)
     if found_root == nil then
         return nil
     end
-    return Calc_identifier(found_root)
+    return M.Calc_identifier(found_root)
 end
 
 --- Taken from: https://www.reddit.com/r/neovim/comments/uz3ofs/heres_a_function_to_grab_the_name_of_the_current/
@@ -33,7 +32,7 @@ end
 ---@return string string Name of the git branch, the git repository is on that the path is part of.
 ---Emty string if the given path is not part of a git repository
 local function get_branch_name(path)
-    if Is_File(path) then
+    if util.Is_File(path) then
         -- the "git branch" command only works
         -- if the -C parameter specifies a directory
         path = vim.fs.dirname(path)
@@ -41,7 +40,7 @@ local function get_branch_name(path)
     return vim.fn.system("git -C " .. path .. " branch --show-current 2> /dev/null | tr -d '\n'")
 end
 
-function Calculate_branch_scope_identifier(path)
+M.Calculate_branch_scope_identifier = function(path)
     assert(path ~= nil, "Path cannot be nil")
 
     local branch = get_branch_name(path)
@@ -54,10 +53,11 @@ function Calculate_branch_scope_identifier(path)
         return nil
     end
 
-    local hash = Calc_identifier(Calc_identifier(branch) .. Calc_identifier(git_root))
+    local hash = M.Calc_identifier(M.Calc_identifier(branch) .. M.Calc_identifier(git_root))
     return hash, branch
 end
 
-function Calculate_global_scope_identifier()
+M.Calculate_global_scope_identifier = function()
     return config.Instance.global_notes_file_name
 end
+return M

@@ -1,9 +1,9 @@
 local config = require("lightNotes.config")
-require("lightNotes.util")
 local float = require("lightNotes.float")
 local logger = require("lightNotes.logger")
-require("lightNotes.scopes")
-require("lightNotes.note")
+local notes = require("lightNotes.note")
+local scopes = require("lightNotes.scopes")
+local util = require("lightNotes.util")
 
 local constants = require("lightNotes.constants")
 
@@ -14,7 +14,7 @@ local M = {}
 M.setup = function(user_config)
     config.Merge(user_config or {})
 
-    if not Exists(config.Instance.notes_directory) then
+    if not util.Exists(config.Instance.notes_directory) then
         logger.Warn("No existing config directory found. Creating new one on path: " .. config.Instance.notes_directory)
         if vim.fn.mkdir(config.Instance.notes_directory, "p") == 0 then
             logger.Error("Could not create new notes directory. Are write permissions missing ?")
@@ -29,7 +29,7 @@ end
 --- window, the old note will be closed and a new floting window
 --- will be created with the global note.
 M.toggle_global_note = function()
-    local global_note_identifier = Calculate_global_scope_identifier()
+    local global_note_identifier = scopes.Calculate_global_scope_identifier()
 
     if float.Is_open() then
         local shown_note = float.Get_current_note()
@@ -44,7 +44,7 @@ M.toggle_global_note = function()
     end
 
     local global_notes_file_path = vim.fs.joinpath(config.Instance.notes_directory, global_note_identifier)
-    if not Exists(global_notes_file_path) then
+    if not util.Exists(global_notes_file_path) then
         logger.Warn(
             "Could not find global note on path "
                 .. global_notes_file_path
@@ -52,7 +52,7 @@ M.toggle_global_note = function()
         )
     end
 
-    local global_note = Open_note_from_path(global_notes_file_path)
+    local global_note = notes.Open_note_from_path(global_notes_file_path)
     global_note.identifier = global_note_identifier
     float.Show_note_in_float(global_note, "Global note")
 end
@@ -69,10 +69,10 @@ M.toogle_branch_scoped_note = function()
         M.close_note()
     end
 
-    local current_file_path = Get_path_to_current_file()
+    local current_file_path = util.Get_path_to_current_file()
     assert(current_file_path ~= nil)
 
-    local path_scoped_identifier, branch_name = Calculate_branch_scope_identifier(current_file_path)
+    local path_scoped_identifier, branch_name = scopes.Calculate_branch_scope_identifier(current_file_path)
     if path_scoped_identifier == nil then
         logger.Warn("Cannot create branch scoped note if not in a repository.")
         return
@@ -87,8 +87,9 @@ M.toogle_branch_scoped_note = function()
         return
     end
 
-    local note_file_path = vim.fs.joinpath(config.Instance.notes_directory, path_scoped_identifier .. ".txt")
-    local note = Open_note_from_path(note_file_path)
+    local note_file_path =
+        vim.fs.joinpath(config.Instance.notes_directory, path_scoped_identifier .. config.Instance.file_extension)
+    local note = notes.Open_note_from_path(note_file_path)
     note.identifier = path_scoped_identifier
     float.Show_note_in_float(note, "Branch note: " .. branch_name)
 end
@@ -104,10 +105,10 @@ M.toogle_repo_scoped_note = function()
         shown_note = float.Get_current_note()
         M.close_note()
     end
-    local current_file_path = Get_path_to_current_file()
+    local current_file_path = util.Get_path_to_current_file()
     assert(current_file_path ~= nil)
 
-    local note_identifier = Calculate_root_scope_identifier(current_file_path, ".git")
+    local note_identifier = scopes.Calculate_root_scope_identifier(current_file_path, ".git")
     if note_identifier == nil then
         logger.Warn("Could not determine root of project to create a note. Used '.git' as root marker")
         return
@@ -122,8 +123,9 @@ M.toogle_repo_scoped_note = function()
         return
     end
 
-    local note_path = vim.fs.joinpath(config.Instance.notes_directory, note_identifier .. ".txt")
-    local note = Open_note_from_path(note_path)
+    local note_path =
+        vim.fs.joinpath(config.Instance.notes_directory, note_identifier .. config.Instance.file_extension)
+    local note = notes.Open_note_from_path(note_path)
     note.identifier = note_identifier
     float.Show_note_in_float(note, "Repository note")
 end
@@ -137,7 +139,7 @@ M.close_note = function()
     end
     local shown_note = float.Get_current_note()
     float.Close()
-    Free_note(shown_note)
+    notes.Free_note(shown_note)
 end
 
 ---@alias scope_func fun(buffer_path:string):string,string
@@ -153,7 +155,7 @@ M.toogle_custom_scoped_note = function(scope_func)
         shown_note = float.Get_current_note()
         M.close_note()
     end
-    local current_file_path = Get_path_to_current_file()
+    local current_file_path = util.Get_path_to_current_file()
     assert(current_file_path ~= nil)
 
     local note_identifier, float_window_title = scope_func(current_file_path)
@@ -168,8 +170,9 @@ M.toogle_custom_scoped_note = function(scope_func)
         return
     end
 
-    local note_path = vim.fs.joinpath(config.Instance.notes_directory, note_identifier .. ".txt")
-    local note = Open_note_from_path(note_path)
+    local note_path =
+        vim.fs.joinpath(config.Instance.notes_directory, note_identifier .. config.Instance.file_extension)
+    local note = notes.Open_note_from_path(note_path)
     note.identifier = note_identifier
     float.Show_note_in_float(note, float_window_title)
 end
@@ -180,7 +183,7 @@ end
 ---@return string
 M.calculate_identifier = function(input)
     require("lightNotes.scopes")
-    return Calc_identifier(input)
+    return util.Calc_identifier(input)
 end
 
 return M

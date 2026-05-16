@@ -8,21 +8,10 @@ Genral ideas about features or bugs to fix are listed in this file
     * I just personally prefer float windows, because they feel "detached" from the rest
       of the project that you are really working on
 
-* maybe offer optional and opinionated keybinds ? 
-    * current plan is to have
-        * `<leader>ng` for the global note
-        * `<leader>np` for the project scoped note
-        * `<leader>nb` for the branch scoped note
-        * `<leader>nf` for the file scoped note
-
-* offer different ready to use scoped note hashing functions. would be good to have one for
-    * project scoped note, that is created with the (custom) root of the project
-    * branch based note, that incorporates the root path and the current branch name
-    * file scoped note based on path of the file
-        * this might be really unstable, if you refactor file names or locations a lot, but if user wants to use that I can just warn them
-    * offer a hook, where the user can also just register a custom function ?
-
-
-* add a function(could be a user command), to open the notes folder in nvim perhaps ?
-
 * find a way to have the cursor position be restorable(of course configurable by the user) for the notes
+
+* big issue at the moment is the exclusive usage of a hashing function for the file names. it makes it impossible to do picking based on the file names
+    * maybe i should make the hash only be part of the file name, in order to ensure uniqueness for the file names ?
+        * would make it possible to do fuzzy searching
+        * something like fileName_hash.txt
+            * but how is the fileName part determined ?

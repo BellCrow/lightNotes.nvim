@@ -1,7 +1,7 @@
-require("lightNotes.util")
 local config = require("lightNotes.config")
 local constants = require("lightNotes.constants")
 local logger = require("lightNotes.logger")
+local util = require("lightNotes.util")
 local M = {}
 
 M.check = function()
@@ -18,7 +18,7 @@ M.check = function()
         )
     end
 
-    if not Exists(config.Instance.notes_directory) or not Is_Directory(config.Instance.notes_directory) then
+    if not util.Exists(config.Instance.notes_directory) or not util.Is_Directory(config.Instance.notes_directory) then
         vim.health.error(
             "Did not find notes directory on path '"
                 .. config.Instance.notes_directory

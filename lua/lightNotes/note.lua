@@ -1,5 +1,6 @@
 local constants = require("lightNotes.constants")
 local logger = require("lightNotes.logger")
+local util = require("lightNotes.util")
 
 ---@class (exact) Note Encapsulates a single note, with its contained buffer
 ---@field buffer integer The buffer id that is backing this note
@@ -17,17 +18,18 @@ local function write_buf(note_buffer)
     end)
 end
 
+local M = {}
 --- Opens a given note and returs it as a note object.
 --- Also creates auto commands, to ensure the note
 --- content is automatically written back to the file
 ---@param path string
 ---@return Note
-function Open_note_from_path(path)
+M.Open_note_from_path = function(path)
     assert(path ~= nil and path ~= "")
     path = vim.fn.expand(path)
 
-    if not Exists(path) then
-        Create_new_file(path)
+    if not util.Exists(path) then
+        util.Create_new_file(path)
         logger.Debug("Create new file in path: " .. path)
     end
 
@@ -61,8 +63,10 @@ end
 --- That ensure, the note content is saved back
 --- to the file
 ---@param note Note
-function Free_note(note)
+M.Free_note = function(note)
     assert(vim.api.nvim_buf_is_valid(note.buffer))
     vim.api.nvim_buf_delete(note.buffer, { force = false, unload = false })
     note.buffer = -1
 end
+
+return M

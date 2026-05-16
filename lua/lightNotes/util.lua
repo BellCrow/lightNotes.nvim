@@ -1,27 +1,28 @@
+local M = {}
 --- Check if the given path points to a valid entry
 --- in the file system. Can be a file or a directory.
 ---@param path string
 ---@return boolean
-function Exists(path)
+M.Exists = function(path)
     path = vim.fn.expand(path)
     assert(path ~= nil, "Path cannot be nil")
     return vim.uv.fs_stat(path) ~= nil
 end
 
-function Is_File(path)
+M.Is_File = function(path)
     assert(path ~= nil, "Path cannot be nil")
     path = vim.fn.expand(path)
     assert(path ~= nil, "Path cannot be nil")
     return vim.uv.fs_stat(path).type == "file"
 end
 
-function Is_Directory(path)
+M.Is_Directory = function(path)
     path = vim.fn.expand(path)
     assert(path ~= nil, "Path cannot be nil")
     return vim.uv.fs_stat(path).type == "directory"
 end
 
-function Create_new_file(path)
+M.Create_new_file = function(path)
     path = vim.fn.expand(path)
     local file, error_message = io.open(path, "w")
     if file == nil then
@@ -31,7 +32,7 @@ function Create_new_file(path)
     file:close()
 end
 
-function Get_path_to_current_file()
+M.Get_path_to_current_file = function()
     -- getting the current active file
     -- is a bit more involved than obvious.
     -- For instance: Being in a float/scratch
@@ -57,3 +58,4 @@ function Get_path_to_current_file()
     -- the regular 'current file' path
     return vim.fn.expand("%:p")
 end
+return M
