@@ -220,7 +220,7 @@ M.toogle_custom_scoped_note({scope_func})
                                      used to show the note (Can be nil)
 
 
-M.calcualate_identifier({input})                       *M.calcualate_identifier*
+M.calculate_identifier({input})                       *M.calcualate_identifier*
      Calculates an identifier from the given string, that only
      contains characters, that can be used as characters in a directory path.
 
