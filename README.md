@@ -30,10 +30,15 @@ biologically :D
         { src = "https://github.com/BellCrow/lightNotes.nvim", version = "master" },
     })
     local lightNotes = require("lightNotes")
+    -- if you want you can supply a custom config via the setup call
     lightNotes.setup({ notes_directory = "~/lightNotesDemo/notes", log_level = 1 })
 
 ```
 
+> [!INFO]
+> Make sure to call `:helptags ALL` after installation to create a regularly
+> browsable help for neovim
+    
 The demo shown here was done using these keybinds
 
 ``` lua

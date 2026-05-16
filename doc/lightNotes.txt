@@ -5,6 +5,37 @@ LightNotes is a plugin for neovim, that allows you take notes in a very
 simplistic nature by "attaching" a note to a file or a so called "scope". It
 allows you to take notes in one of two ways "global" and "scoped".
 
+*lightNotes-config*
+The config table can contain the following values.
+Shown here are the default values:
+>lua
+    local config = {
+	-- the directory where all the notes files are stored
+	notes_directory = vim.fs.joinpath(vim.fn.stdpath("data"), constants.PluginName),
+	-- defines the minimal severity for a log message to be shown
+	-- can be a number from -1 to 3 (both numbers inclusive)
+	-- -1 -> you will see no messages at all
+	-- 0 -> you will only see errors
+	-- 1 -> you will see warnings and all levels above
+	-- 2 -> you will see infos and all levels above
+	-- 3 -> you will see debug and all levels above
+	log_level = 2,
+
+	-- the file extension every note should have
+	-- if you change this to ".md" nvim will automatically
+	-- treat the note as markdown file
+	file_extension = ".txt",
+
+	-- if you want your global notes file to be named anything specific
+	-- you can specify the name here.
+	-- I know, that this is technically not correct lua
+	-- (the default config table is constructed with a function in the
+	-- background) but it should make clear how the default config 
+	-- will behave.
+	global_notes_file_name = "global_notes" .. config.file_extension,
+    }
+<
+
 *lighNotes-identifier*
 Every note in lightNotes, is stored as a regular .txt file in a configurable
 notes directory. However that means these files need to get a name. This name
