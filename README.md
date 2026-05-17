@@ -6,7 +6,7 @@
 
 # LightNotes.nvim
 
-LightNotes is a plugin for neovim, that allows you take notes in a very
+LightNotes is a plugin for Neovim, that allows you take notes in a very
 simplistic nature by "attaching" a note to a file or a so called "scope".
 It allows you to take notes in one of two ways "global" and "scoped".
 
@@ -16,7 +16,7 @@ It allows you to take notes in one of two ways "global" and "scoped".
 As the topic seems to be very polarizing, I would like disclose here, that no
 AI was involved in the creation of the code and documentation of  plugin. I
 have only used generative AI to create the logo, you can see on the
-repositories github page.
+repositories GitHub page.
 
 Any bugs, issues or weird behavior you might encounter have been produced 100 %
 biologically :D
@@ -37,7 +37,7 @@ biologically :D
 
 > [!INFO]
 > Make sure to call `:helptags ALL` after installation to create a regularly
-> browsable help for neovim
+> browsable help for Neovim
 
 The demo shown here was done using these keybinds
 
@@ -76,11 +76,11 @@ There are two different kinds of notes lightNotes supports.
 
 ## Global note
 There is a single so called global note. This note is
-unique for your nvim config (so the value you have set via the configuration).
-It will be same no matter what files/directories you are editing with nvim.
+unique for your Nvim config (so the value you have set via the configuration).
+It will be same no matter what files/directories you are editing with Nvim.
 
 ## Scoped notes
-Scoped notes are "attached" to a certain scope that exists during an nvim
+Scoped notes are "attached" to a certain scope that exists during an Nvim
 session. The scopes are always calculated based on the currently edited buffer
 (which should be a file).
 
@@ -125,6 +125,6 @@ plugin or you should just use an alternative plugin.
 
 # Notes (unstructured thoughts)
 - if you write a function to convert a file path to a hash value, take into consideration, that you might
-  have buffers, that might not have a easy to handle path. like the nvim help for instance.
+  have buffers, that might not have a easy to handle path. like the Nvim help for instance.
   Or you have a buffer open, that resolves to a path, that you did not expect.
 
