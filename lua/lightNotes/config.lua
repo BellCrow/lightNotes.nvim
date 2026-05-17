@@ -29,7 +29,7 @@ local function GetDefaultConfig()
     config.notes_directory = vim.fs.joinpath(vim.fn.stdpath("data"), constants.PluginName)
     config.log_level = 2
     config.file_extension = ".txt"
-    config.global_notes_file_name = "global_notes" .. config.file_extension
+    config.global_notes_file_name = "global_notes"
     config.restore_cursor = true
     config.window = {
         width  = 0.8,
