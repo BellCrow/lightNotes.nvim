@@ -1,4 +1,5 @@
 require("lightNotes.note")
+local config = require("lightNotes.config")
 
 local M = {}
 
@@ -28,9 +29,13 @@ end
 ---@param title string The title of the float window shown in the top center
 M.Show_note_in_float = function(note, title)
     assert(not M.Is_open())
+    local get_dim = function(max, cfg)
+        if cfg > 1 then return math.min(max, cfg) end
+        return math.floor(max * cfg)
+    end
     -- we have to create a new float window
-    local width = math.floor(vim.o.columns * 0.8)
-    local height = math.floor(vim.o.lines * 0.8)
+    local width = get_dim(vim.o.columns, config.Instance.window.width)
+    local height = get_dim(vim.o.lines, config.Instance.window.height)
     local x = math.floor((vim.o.columns - width) / 2)
     local y = math.floor((vim.o.lines - height) / 2)
     local win_config = {
@@ -40,10 +45,16 @@ M.Show_note_in_float = function(note, title)
         col = x,
         row = y,
         title = title,
-        title_pos = "center",
+        title_pos = config.Instance.window.title_pos,
     }
     M._opened_float_window_id = vim.api.nvim_open_win(note.buffer, true, win_config)
     M._current_shown_note = note
+    if config.Instance.restore_cursor then
+        local line = vim.fn.line([['"]])
+        if 0 < line and line <= vim.fn.line('$') then
+            vim.cmd('normal! g`"')
+        end
+    end
 end
 
 --- Closes an existing floating window with notes if there is any

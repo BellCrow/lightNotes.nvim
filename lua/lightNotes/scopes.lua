@@ -59,5 +59,6 @@ end
 
 M.Calculate_global_scope_identifier = function()
     return config.Instance.global_notes_file_name
+        .. config.Instance.file_extension
 end
 return M
