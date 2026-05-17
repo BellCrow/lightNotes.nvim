@@ -25,7 +25,7 @@ M.setup = function(user_config)
     vim.api.nvim_create_augroup(constants.PluginName, { clear = true })
 end
 
---- Toogles the global note for on and off. If there is already a floating
+--- Toggles the global note for on and off. If there is already a floating
 --- window, the old note will be closed and a new floting window
 --- will be created with the global note.
 M.toggle_global_note = function()
@@ -57,11 +57,11 @@ M.toggle_global_note = function()
     float.Show_note_in_float(global_note, "Global note")
 end
 
---- Toogles a note, that is scoped to the branch of the current repository.
+--- Toggles a note, that is scoped to the branch of the current repository.
 --- This will only work if the path of the file of the currently active
 --- buffer, is inside of a git repository. Will fail with
 --- a warning if the file is not part of a repository.
-M.toogle_branch_scoped_note = function()
+M.toggle_branch_scoped_note = function()
     ---@type Note
     local shown_note = nil
     if float.Is_open() then
@@ -94,11 +94,11 @@ M.toogle_branch_scoped_note = function()
     float.Show_note_in_float(note, "Branch note: " .. branch_name)
 end
 
---- Toogles a note, that is scoped to the repository of the active file.
+--- Toggles a note, that is scoped to the repository of the active file.
 --- This will only work if the path of the file of the currently active
 --- buffer, is inside of a git repository. Will fail with
 --- a warning if the file is not part of a repository.
-M.toogle_repo_scoped_note = function()
+M.toggle_repo_scoped_note = function()
     ---@type Note
     local shown_note = nil
     if float.Is_open() then
@@ -148,7 +148,7 @@ end
 --- can be used as the name of a file. It can optionally also return
 --- any name, that will be shown as the title of the floating window
 --- used to show the note (Can be nil)
-M.toogle_custom_scoped_note = function(scope_func)
+M.toggle_custom_scoped_note = function(scope_func)
     ---@type Note
     local shown_note = nil
     if float.Is_open() then

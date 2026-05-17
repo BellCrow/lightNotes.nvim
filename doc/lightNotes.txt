@@ -30,7 +30,7 @@ Shown here are the default values:
 	-- you can specify the name here.
 	-- I know, that this is technically not correct lua
 	-- (the default config table is constructed with a function in the
-	-- background) but it should make clear how the default config 
+	-- background) but it should make clear how the default config
 	-- will behave.
 	global_notes_file_name = "global_notes" .. config.file_extension,
     }
@@ -40,12 +40,12 @@ Shown here are the default values:
 Every note in lightNotes, is stored as a regular .txt file in a configurable
 notes directory. However that means these files need to get a name. This name
 is not directly specified by the user, but is calculated based on the context
-from which lightNotes was invoked. 
+from which lightNotes was invoked.
 
-The predefinded scope(|lightNotes-scopes-predefined|) 
+The predefinded scope(|lightNotes-scopes-predefined|)
 |lightNotes-scope-repository| for instance retrieves the the repository and the
 branch which the current buffers file belong to and calculate an
-identifier based on the retrieved branch name. 
+identifier based on the retrieved branch name.
 
 By default the identifiers are just sha256 hashes, which only creates
 characters valid for filenames and are also unique.
@@ -57,7 +57,7 @@ resulting note would get the name
 However that also means it is very hard to do file searches in the notes
 directory. This is a tradeoff, that I was willing to accept for myself
 as It was not apparent to me how to generate sensibly named but still
-auto generated notes for each possible scope. 
+auto generated notes for each possible scope.
 
 If you roughly know what you are looking for you might still have success
 using full text search in the notes directory with something like ripgrep.
@@ -75,12 +75,12 @@ It will be same no matter what files/directories you are editing with nvim.
 
 I usually use this to takes notes about things I still need to do. For
 instance, when my boss comes into my office and lets me know, there is some
-stuff i need to check later. I just write it in my global note. 
+stuff i need to check later. I just write it in my global note.
 
 As the global note is always on a fixed path, you could also create an alias
 in your terminal to open nvim with this global file to make it more accessible
 
-*lightNotes-scoped-note* 
+*lightNotes-scoped-note*
 Scoped notes are "attached" to a certain scope that exists during an nvim
 session. The scopes are always calculated based on the currently edited buffer
 (which should be a file). If the current buffer is not a file with a backing
@@ -99,22 +99,22 @@ open the same note for you to edit.
 This scope will take the currently active buffer and will simply query git for
 the currently active branch. A note scoped to this specific branch will be
 created or opened. That means, that all file paths in this repository, that
-are part of the same branch will share a note. 
+are part of the same branch will share a note.
 
 *lightNotes-scope-custom*
 If the preexisting scope definitions are not fitting for your usecase you can
-also define your own scopes. 
+also define your own scopes.
 
-The api offers a function |toogle_custom_scoped_note| which expects a function
+The api offers a function |toggle_custom_scoped_note| which expects a function
 as an argument. This function is given the full path to the active buffers
 file. The function should return a note identifier and optionally a title,
-that is shown on the floating window. 
+that is shown on the floating window.
 
 ! Keep in mind, that the returned note identifier MUST be a string, that could
 be used as a file name !
 
 That way you can calcualte your own identifiers based on the file path as you
-see fit. 
+see fit.
 
 You can use the |calculate_identifier| function offered to convert any given
 string into a valid identifier.
@@ -147,7 +147,7 @@ Examples: >lua
 	    return nil, nil
 	end
 	-- this creates an identfier for the current file
-	-- ON the current branch. 
+	-- ON the current branch.
 	local identifier = lightNotes.calcualate_hash(branch .. ":" .. file_path)
 	return identifier, identifier
     end
@@ -157,10 +157,10 @@ Examples: >lua
 	--     keep in mind, that creating identifiers this way means,
 	--     that ANY file that you are working with this file name will
 	--     result in opening the same note.
-	--     If you are unsure, why that is or what this means. 
+	--     If you are unsure, why that is or what this means.
 	--     Please read the section about identifiers in the help
 	local identifier = vim.fs.basename(file_path)
-	-- if you have a file path like 
+	-- if you have a file path like
 	-- ~/repos/SuperImportantRepository/src/fileImCurentlyWorkingOn.txt
 	-- the resulting identifier would be fileImCurentlyWorkingOn.txt
 	-- if you had another repository like this
@@ -173,7 +173,7 @@ Examples: >lua
     ------------------------------------------------------------------
 
     -- now you can use <leader>nc to create a file
-    -- scoped in any file that you are in. 
+    -- scoped in any file that you are in.
     -- this note is unique for the given FULL path
     -- of the file
     vim.keymap.set("n", "<leader>nc", function()
@@ -209,20 +209,20 @@ M.setup({user_config})                                                 *M.setup*
 
 
 M.toggle_global_note()                                    *M.toggle_global_note*
-     Toogles the global note for on and off. If there is already a floating
+     Toggles the global note for on and off. If there is already a floating
      window, the old note will be closed and a new floting window
      will be created with the global note.
 
 
-M.toogle_branch_scoped_note()                      *M.toogle_branch_scoped_note*
-     Toogles a note, that is scoped to the branch of the current repository.
+M.toggle_branch_scoped_note()                      *M.toggle_branch_scoped_note*
+     Toggles a note, that is scoped to the branch of the current repository.
      This will only work if the path of the file of the currently active
      buffer, is inside of a git repository. Will fail with
      a warning if the file is not part of a repository.
 
 
-M.toogle_repo_scoped_note()                          *M.toogle_repo_scoped_note*
-     Toogles a note, that is scoped to the repository of the active file.
+M.toggle_repo_scoped_note()                          *M.toggle_repo_scoped_note*
+     Toggles a note, that is scoped to the repository of the active file.
      This will only work if the path of the file of the currently active
      buffer, is inside of a git repository. Will fail with
      a warning if the file is not part of a repository.
@@ -240,8 +240,8 @@ scope_func                                                          *scope_func*
         fun(buffer_path:string):string,string
 
 
-                                                   *M.toogle_custom_scoped_note*
-M.toogle_custom_scoped_note({scope_func})
+                                                   *M.toggle_custom_scoped_note*
+M.toggle_custom_scoped_note({scope_func})
 
     Parameters: ~
         {scope_func}  (scope_func)  This function should take in a path
