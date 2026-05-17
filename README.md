@@ -76,7 +76,7 @@ There are two different kinds of notes lightNotes supports.
 
 ## Global note
 There is a single so called global note. This note is
-unique for your nvim config(so the value you have set via the configuration).
+unique for your nvim config (so the value you have set via the configuration).
 It will be same no matter what files/directories you are editing with nvim.
 
 ## Scoped notes
@@ -104,7 +104,7 @@ So at the moment, there is support for:
 
 * oil.nvim: will act as if the selected file is the current file
 
-As im not using every plugin, I cannot support all of them. If you want to add
+As I'm not using every plugin, I cannot support all of them. If you want to add
 additional integrations like for oil.nvim you can add them in the same file
 where the oil integration is and create a pull request.
 
