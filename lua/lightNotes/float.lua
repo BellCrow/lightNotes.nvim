@@ -1,4 +1,5 @@
 require("lightNotes.note")
+local config = require("lightNotes.config")
 
 local M = {}
 
@@ -44,6 +45,12 @@ M.Show_note_in_float = function(note, title)
     }
     M._opened_float_window_id = vim.api.nvim_open_win(note.buffer, true, win_config)
     M._current_shown_note = note
+    if config.Instance.restore_cursor then
+        local line = vim.fn.line([['"]])
+        if 0 < line and line <= vim.fn.line('$') then
+            vim.cmd('normal! g`"')
+        end
+    end
 end
 
 --- Closes an existing floating window with notes if there is any

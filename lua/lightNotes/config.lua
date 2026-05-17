@@ -7,6 +7,7 @@ local M = {}
 ---Set to a number from 1 to 4, where 4 inludes the most logs
 ---@field file_extension string The default extension for the notes files, saved to disk. (Defaults to '.txt')
 ---Set this to "md" if you want your notes to be markdown files
+---@field restore_cursor boolean If true restore the cursor position from last time a note was open (relies on ShaDa file).
 
 --- Create a new table containing the default configuration
 ---@return Config
@@ -19,6 +20,7 @@ local function GetDefaultConfig()
     config.log_level = 2
     config.file_extension = ".txt"
     config.global_notes_file_name = "global_notes" .. config.file_extension
+    config.restore_cursor = true
     return config
 end
 
@@ -39,6 +41,8 @@ M.Merge = function(config)
     if string.find(M.Instance.file_extension, "%.") == nil then
         M.Instance.file_extension = "." .. M.Instance.file_extension
     end
+
+    vim.validate("config.restore_cursor", M.Instance.restore_cursor, "boolean")
 
     -- the paths might be given, as relative paths or have a '~' in them
     -- is there a better way to ensure, that paths are expanded by default ?
