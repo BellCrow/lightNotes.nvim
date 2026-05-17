@@ -11,8 +11,13 @@ local M = {}
 ---@field restore_cursor boolean If true restore the cursor position from last time a note was open (relies on ShaDa file).
 
 ---@class (exact) Window
----@field width number The width share of the floating window (should be in range 0 to 1)
----@field height number The height share of the floating window (should be in range 0 to 1)
+---@field width number The width of the floating window, if <= 1 it's the share
+---of the total available width, otherwise it's the maximum number of columns
+---used.
+---@field height number The height of the floating window, if <= 1 it's the
+---share of the total available height, otherwise it's the maximum number of
+---lines used.
+---@field title_pos 'left'|'center'|'right' the position of the title
 
 --- Create a new table containing the default configuration
 ---@return Config
@@ -29,6 +34,7 @@ local function GetDefaultConfig()
     config.window = {
         width  = 0.8,
         height = 0.8,
+        title_pos = 'center'
     }
     return config
 end
