@@ -19,7 +19,7 @@ local function write_buf(note_buffer)
 end
 
 local M = {}
---- Opens a given note and returs it as a note object.
+--- Opens a given note and returns it as a note object.
 --- Also creates auto commands, to ensure the note
 --- content is automatically written back to the file
 ---@param path string
