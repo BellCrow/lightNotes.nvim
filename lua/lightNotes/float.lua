@@ -30,8 +30,8 @@ end
 M.Show_note_in_float = function(note, title)
     assert(not M.Is_open())
     -- we have to create a new float window
-    local width = math.floor(vim.o.columns * 0.8)
-    local height = math.floor(vim.o.lines * 0.8)
+    local width = math.floor(vim.o.columns * config.Instance.window.width)
+    local height = math.floor(vim.o.lines * config.Instance.window.height)
     local x = math.floor((vim.o.columns - width) / 2)
     local y = math.floor((vim.o.lines - height) / 2)
     local win_config = {

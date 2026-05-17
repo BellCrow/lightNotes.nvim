@@ -7,7 +7,12 @@ local M = {}
 ---Set to a number from 1 to 4, where 4 inludes the most logs
 ---@field file_extension string The default extension for the notes files, saved to disk. (Defaults to '.txt')
 ---Set this to "md" if you want your notes to be markdown files
+---@field window Window
 ---@field restore_cursor boolean If true restore the cursor position from last time a note was open (relies on ShaDa file).
+
+---@class (exact) Window
+---@field width number The width share of the floating window (should be in range 0 to 1)
+---@field height number The height share of the floating window (should be in range 0 to 1)
 
 --- Create a new table containing the default configuration
 ---@return Config
@@ -21,6 +26,10 @@ local function GetDefaultConfig()
     config.file_extension = ".txt"
     config.global_notes_file_name = "global_notes" .. config.file_extension
     config.restore_cursor = true
+    config.window = {
+        width  = 0.8,
+        height = 0.8,
+    }
     return config
 end
 
@@ -42,6 +51,8 @@ M.Merge = function(config)
         M.Instance.file_extension = "." .. M.Instance.file_extension
     end
 
+    vim.validate("config.window.width", M.Instance.window.width, "number")
+    vim.validate("config.window.height", M.Instance.window.height, "number")
     vim.validate("config.restore_cursor", M.Instance.restore_cursor, "boolean")
 
     -- the paths might be given, as relative paths or have a '~' in them
